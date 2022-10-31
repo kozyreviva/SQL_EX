@@ -1,2 +1,8 @@
-# SQL_EX
-Exerecises SQL-EX.ru
+# SQL_EX Exercises
+
+Практичерское решение задач на языке SQL.
+
+## Описание
+Репозиторий содержит задачи с сайта [https://sql-ex.ru/](https://sql-ex.ru/)
+
+* `Select` (обучающий этап), с выбором СУБД
