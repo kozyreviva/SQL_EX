@@ -127,3 +127,17 @@ From Outcomes
 Where result = 'sunk'
   And battle = 'North Atlantic'
 ```
+
+## 34
+
+По Вашингтонскому международному договору от начала 1922 г. запрещалось строить линейные корабли водоизмещением более 35 тыс.тонн. Укажите корабли, нарушившие этот договор (учитывать только корабли c известным годом спуска на воду). Вывести названия кораблей
+
+```sql
+Select name
+From Ships
+Where class in (select class
+                From Classes
+                Where type = 'bb'
+                  And displacement > 35000)
+  And launched >= 1922
+```
