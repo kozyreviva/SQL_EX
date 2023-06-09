@@ -214,8 +214,8 @@ WITH b AS (SELECT *
                          FROM outcomes
                          JOIN battles AS bt1 ON bt1.name = outcomes.battle
                          WHERE o.ship = outcomes.ship
-                          AND result = 'damaged'
-                          AND bt.date > bt1.date))
+                           AND result = 'damaged'
+                           AND bt.date > bt1.date))
 SELECT DISTINCT ship
 FROM b
 ```
