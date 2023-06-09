@@ -133,11 +133,71 @@ Where result = 'sunk'
 По Вашингтонскому международному договору от начала 1922 г. запрещалось строить линейные корабли водоизмещением более 35 тыс.тонн. Укажите корабли, нарушившие этот договор (учитывать только корабли c известным годом спуска на воду). Вывести названия кораблей
 
 ```sql
-Select name
-From Ships
-Where class in (select class
-                From Classes
-                Where type = 'bb'
-                  And displacement > 35000)
-  And launched >= 1922
+SELECT name
+FROM Ships
+WHERE class IN (SELECT class
+                FROM Classes
+                WHERE type = 'bb'
+                  AND displacement > 35000)
+  AND launched >= 1922
+```
+
+## 35
+
+В таблице Product найти модели, которые состоят только из цифр или только из латинских букв (A-Z, без учета регистра).
+Вывод: номер модели, тип модели.
+
+```sql
+SELECT model, type
+FROM product
+WHERE model NOT LIKE '%[^0-9]%' 
+   OR model NOT LIKE '%[^A-Za-z]%'
+```
+
+## 36
+
+Перечислите названия головных кораблей, имеющихся в базе данных (учесть корабли в Outcomes).
+
+```sql
+SELECT name
+FROM ships 
+WHERE name = class
+UNION
+SELECT ship
+FROM outcomes
+INNER JOIN classes ON outcomes.ship = classes.class
+```
+
+## 37
+
+Найдите классы, в которые входит только один корабль из базы данных (учесть также корабли в Outcomes).
+
+```sql
+WITH s AS (SELECT ship, classes.class
+           FROM outcomes
+           JOIN classes ON outcomes.ship = classes.class
+           UNION
+           SELECT name, class
+           FROM ships)
+
+SELECT class 
+FROM s   
+WHERE class IN (SELECT class
+                FROM s
+                GROUP BY class
+                HAVING COUNT(*)=1)
+```
+
+## 38
+
+Найдите страны, имевшие когда-либо классы обычных боевых кораблей ('bb') и имевшие когда-либо классы крейсеров ('bc').
+
+```sql
+SELECT country 
+FROM classes
+WHERE type = 'bb'
+INTERSECT
+SELECT country 
+FROM classes
+WHERE type = 'bc'
 ```
