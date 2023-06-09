@@ -201,3 +201,64 @@ SELECT country
 FROM classes
 WHERE type = 'bc'
 ```
+
+## 39
+
+Найдите корабли, `сохранившиеся для будущих сражений`; т.е. выведенные из строя в одной битве (damaged), они участвовали в другой, произошедшей позже.
+
+```sql
+WITH b AS (SELECT * 
+           FROM outcomes AS o
+           JOIN battles AS bt ON bt.name = o.battle
+           WHERE EXISTS (SELECT ship
+                         FROM outcomes
+                         JOIN battles AS bt1 ON bt1.name = outcomes.battle
+                         WHERE o.ship = outcomes.ship
+                          AND result = 'damaged'
+                          AND bt.date > bt1.date))
+SELECT DISTINCT ship
+FROM b
+```
+
+## 40
+
+Найти производителей, которые выпускают более одной модели, при этом все выпускаемые производителем модели являются продуктами одного типа.
+Вывести: maker, type
+
+```sql
+SELECT maker, type
+FROM product
+WHERE maker IN (SELECT maker
+                FROM product
+                GROUP BY maker
+                HAVING COUNT(DISTINCT type) = 1)
+GROUP BY maker,type
+HAVING COUNT(model) > 1
+```
+
+## 41
+
+Для каждого производителя, у которого присутствуют модели хотя бы в одной из таблиц PC, Laptop или Printer,
+определить максимальную цену на его продукцию.
+Вывод: имя производителя, если среди цен на продукцию данного производителя присутствует NULL, то выводить для этого производителя NULL,
+иначе максимальную цену.
+
+```sql
+WITH un AS(SELECT model, price 
+           FROM pc
+           UNION
+           SELECT model, price
+           FROM laptop
+           UNION
+           SELECT model, price
+           FROM printer)
+
+SELECT maker, 
+CASE 
+WHEN MAX(CASE WHEN price IS NULL THEN 1 ELSE 0 END) = 0
+THEN MAX(price) 
+END  price        
+FROM product
+RIGHT JOIN un ON product.model=un.model 
+GROUP BY maker
+```
