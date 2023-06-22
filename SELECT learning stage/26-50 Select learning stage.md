@@ -262,3 +262,24 @@ FROM product
 RIGHT JOIN un ON product.model=un.model 
 GROUP BY maker
 ```
+## 42
+
+Найдите названия кораблей, потопленных в сражениях, и название сражения, в котором они были потоплены.
+
+```sql
+SELECT ship, battle
+FROM outcomes
+WHERE result = 'sunk'
+```
+
+## 43
+
+Укажите сражения, которые произошли в годы, не совпадающие ни с одним из годов спуска кораблей на воду.
+
+```sql
+SELECT DISTINCT name
+FROM battles
+WHERE year(date) NOT IN (SELECT launched
+                         FROM ships
+                         WHERE launched IS NOT NULL)
+```
