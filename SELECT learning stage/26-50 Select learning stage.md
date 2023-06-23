@@ -283,3 +283,130 @@ WHERE year(date) NOT IN (SELECT launched
                          FROM ships
                          WHERE launched IS NOT NULL)
 ```
+## 44
+
+Найдите названия всех кораблей в базе данных, начинающихся с буквы R.
+
+```sql
+WITH s AS (SELECT name
+           FROM ships
+           UNION
+           SELECT ship
+           FROM outcomes)
+
+SELECT name
+FROM s
+WHERE name LIKE 'R%'
+```
+
+## 45
+
+Найдите названия всех кораблей в базе данных, состоящие из трех и более слов (например, King George V).
+Считать, что слова в названиях разделяются единичными пробелами, и нет концевых пробелов.
+
+```sql
+WITH s AS (SELECT name
+           FROM ships
+           UNION
+           SELECT ship
+           FROM outcomes)
+
+SELECT name
+FROM s
+WHERE name LIKE '% % %'
+```
+
+## 46
+
+Для каждого корабля, участвовавшего в сражении при Гвадалканале (Guadalcanal), вывести название, водоизмещение и число орудий.
+
+```sql
+SELECT name, displacement, numGuns
+FROM outcomes
+JOIN (classes JOIN ships ON classes.class = ships.class) ON ship = name
+WHERE battle = 'Guadalcanal'
+
+UNION
+
+SELECT ship, displacement, numGuns
+FROM outcomes
+LEFT JOIN classes ON outcomes.ship = classes.class
+WHERE battle = 'Guadalcanal'
+  AND ship NOT IN (SELECT name FROM ships)
+```
+
+## 47
+
+пределить страны, которые потеряли в сражениях все свои корабли.
+
+```sql
+WITH sh AS (SELECT c.country, s.name
+            FROM classes AS c
+            JOIN ships AS s ON c.class = s.class
+            UNION
+            SELECT c.country, o.ship
+            FROM classes AS c 
+            JOIN outcomes AS o ON c.class = o.ship),
+      a AS (SELECT country, name,
+            CASE 
+                WHEN result = 'sunk'
+                THEN 1
+                ELSE 0
+            END AS sunk
+            FROM sh 
+            LEFT JOIN outcomes AS o ON o.ship = sh.name)
+
+
+SELECT country
+FROM a
+GROUP BY country
+HAVING COUNT(DISTINCT name) = SUM(sunk)
+```
+
+## 48
+
+Найдите классы кораблей, в которых хотя бы один корабль был потоплен в сражении.
+
+```sql
+SELECT c.class
+FROM classes AS c
+JOIN ships AS s ON s.class = c.class
+JOIN outcomes AS o ON s.name = o.ship
+WHERE result ='sunk'
+
+UNION
+
+SELECT c.class
+FROM classes AS c
+JOIN outcomes AS o ON c.class = o.ship
+WHERE result = 'sunk'
+```
+
+## 49
+
+Найдите названия кораблей с орудиями калибра 16 дюймов (учесть корабли из таблицы Outcomes).
+
+```sql
+SELECT name
+FROM ships 
+JOIN classes ON ships.class= classes.class
+WHERE bore = 16
+
+UNION
+
+SELECT ship
+FROM outcomes
+JOIN classes ON classes.class=outcomes.ship
+WHERE bore = 16
+```
+
+## 50
+
+Найдите сражения, в которых участвовали корабли класса Kongo из таблицы Ships.
+
+```sql
+SELECT DISTINCT battle
+FROM outcomes 
+JOIN ships ON ship = name
+WHERE class = 'Kongo'
+```
